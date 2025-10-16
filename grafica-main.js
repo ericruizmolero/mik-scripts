@@ -166,6 +166,16 @@
       const interno = (p8 + p9 + p10 + p11 + p12) / 5;
       
       // 2. Externo - p13
+      // p13: suma de checkboxes (p13.1, p13.2, p13.3, p13.4, p13.5, p13.6, p13.7)
+      const p13_1 = params.get('p13.1-14.29') ? 14.29 : 0;
+      const p13_2 = params.get('p13.2-14.29') ? 14.29 : 0;
+      const p13_3 = params.get('p13.3-14.29') ? 14.29 : 0;
+      const p13_4 = params.get('p13.4-14.29') ? 14.29 : 0;
+      const p13_5 = params.get('p13.5-14.29') ? 14.29 : 0;
+      const p13_6 = params.get('p13.6-14.29') ? 14.29 : 0;
+      const p13_7 = params.get('p13.7-14.29') ? 14.29 : 0;
+      const p13 = p13_1 + p13_2 + p13_3 + p13_4 + p13_5 + p13_6 + p13_7;
+      
       const externo = p13;
       
       // Calcular media de las 2 temáticas
