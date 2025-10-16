@@ -13,15 +13,16 @@
       return valores.reduce((acc, val) => acc + val, 0) / valores.length;
     }
   
-    // 1. Impacto Climático - p18, p21.3, p22.5, p22.1, p22.2
+    // 1. Impacto Climático - p17, p18, p21.3, p22.5, p22.1, p22.2
     function calcularImpactoClimatico() {
+      const p17 = extraerValor(params.get('Pregunta-17'));
       const p18 = extraerValor(params.get('Pregunta-18'));
       const p21_3 = extraerValor(params.get('Pregunta-21.3'));
       const p22_5 = extraerValor(params.get('Pregunta-22.5'));
       const p22_1 = extraerValor(params.get('Pregunta-22.1'));
       const p22_2 = extraerValor(params.get('Pregunta-22.2'));
       
-      return (p18 + p21_3 + p22_5 + p22_1 + p22_2) / 5;
+      return (p17 + p18 + p21_3 + p22_5 + p22_1 + p22_2) / 6;
     }
   
     // 2. Gestión Sostenible - p23, p19, p22.3, p22.4, p22.6
@@ -50,16 +51,14 @@
       return (p22_7 + p21_4 + p20) / 3;
     }
   
-    // 4. Gestión Ambiental - p24, p21 (media de p21.1, p21.2, p21.3, p21.4)
+    // 4. Gestión Ambiental - p24, p21 (media de p21.1, p21.2)
     function calcularGestionAmbiental() {
       const p24 = extraerValor(params.get('Pregunta-24'));
       
-      // p21: media de sub-preguntas (Pregunta-21.1 a Pregunta-21.4)
+      // p21: media de sub-preguntas (Pregunta-21.1, Pregunta-21.2)
       const p21a = extraerValor(params.get('Pregunta-21.1'));
       const p21b = extraerValor(params.get('Pregunta-21.2'));
-      const p21c = extraerValor(params.get('Pregunta-21.3'));
-      const p21d = extraerValor(params.get('Pregunta-21.4'));
-      const p21 = (p21a + p21b + p21c + p21d) / 4;
+      const p21 = (p21a + p21b) / 2;
       
       return (p24 + p21) / 2;
     }
