@@ -99,10 +99,13 @@ async function initializePrintable() {
     // --- Detectar Safari y manejar problemas específicos ---
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     console.log(`🌐 [Printable] Navegador detectado: ${isSafari ? 'Safari' : 'Otro'}`);
+    console.log(`🌐 [Printable] User Agent: ${navigator.userAgent}`);
+    console.log(`🌐 [Printable] ¿Es Safari? ${isSafari}`);
 
     // --- Safari: Usar método alternativo sin html2pdf.js ---
     if (isSafari) {
       console.log('🍎 Safari detectado: Usando método alternativo de impresión');
+      console.log('🍎 Safari: Iniciando método window.print()...');
       try {
         // Método 1: Usar window.print() con CSS específico
         const printWindow = window.open('', '_blank');
