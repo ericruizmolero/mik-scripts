@@ -96,117 +96,21 @@ async function initializePrintable() {
       }
     };
 
-    // --- Detectar Safari y manejar problemas específicos ---
+    // --- Bloquear Safari completamente ---
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    console.log(`🌐 [Printable] Navegador detectado: ${isSafari ? 'Safari' : 'Otro'}`);
-    console.log(`🌐 [Printable] User Agent: ${navigator.userAgent}`);
-    console.log(`🌐 [Printable] ¿Es Safari? ${isSafari}`);
-
-    // --- Safari: Usar método alternativo sin html2pdf.js ---
     if (isSafari) {
-      console.log('🍎 Safari detectado: Usando método alternativo de impresión');
-      console.log('🍎 Safari: Iniciando método window.print()...');
-      try {
-        // Método 1: Usar window.print() con CSS específico
-        const printWindow = window.open('', '_blank');
-        const printContent = area.innerHTML;
-        
-        printWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>Resultados GSBIndex - ${empresa}</title>
-            <style>
-              @page { 
-                size: A4 landscape; 
-                margin: 0; 
-              }
-              body { 
-                margin: 0; 
-                padding: 20px; 
-                font-family: Arial, sans-serif; 
-                transform: scale(0.8);
-                transform-origin: top left;
-              }
-              * { 
-                box-sizing: border-box; 
-              }
-            </style>
-          </head>
-          <body>
-            ${printContent}
-            <script>
-              window.onload = function() {
-                window.print();
-                setTimeout(() => window.close(), 1000);
-              };
-            </script>
-          </body>
-          </html>
-        `);
-        
-        printWindow.document.close();
-        console.log('✅ Safari: Ventana de impresión abierta');
-        return;
-        
-      } catch (printErr) {
-        console.warn('⚠️ Safari: Fallo en método de impresión:', printErr.message);
-        console.log('🔄 Safari: Intentando fallback con html2pdf simplificado...');
-        
-        try {
-          // Fallback: Descarga directa con html2pdf simplificado
-          const simpleOpts = {
-            margin: 0,
-            filename,
-            image: { type: 'jpeg', quality: 0.6 },
-            html2canvas: { 
-              scale: 0.8, 
-              useCORS: true, 
-              logging: false,
-              allowTaint: true,
-              backgroundColor: '#ffffff'
-            },
-            jsPDF: { 
-              unit: 'mm', 
-              format: 'a4', 
-              orientation: 'landscape',
-              compress: true
-            }
-          };
-          
-          console.log('🔄 Safari: Generando PDF con opciones simplificadas...');
-          await html2pdf().set(simpleOpts).from(area).save();
-          console.log('✅ Safari: PDF descargado como fallback');
-          return;
-          
-        } catch (fallbackErr) {
-          console.error('❌ Safari: Error también en fallback:', fallbackErr.message);
-          console.log('🍎 Safari: Intentando método de emergencia...');
-          
-          // Método de emergencia: Solo mostrar mensaje
-          alert(`Safari detectado: Por favor, usa Ctrl+P (Cmd+P en Mac) para imprimir esta página.\n\nEmpresa: ${empresa}\nEmail: ${to || 'No especificado'}`);
-          return;
-        }
-      }
+      console.log('🍎 Safari detectado: Printable.js bloqueado para Safari');
+      console.log('🍎 Safari: Usa Ctrl+P (Cmd+P en Mac) para imprimir esta página');
+      return;
     }
 
-    // --- Otros navegadores: Usar html2pdf.js normal ---
+    // --- Generar PDF directamente desde el elemento ---
     console.log('🔄 [Printable] Iniciando generación de PDF...');
     const worker = html2pdf().set(opts).from(area).toPdf();
-    console.log('🔄 [Printable] Worker creado, obteniendo PDF...');
-    
-    // Añadir timeout específico para worker.get('pdf')
-    const pdfPromise = worker.get('pdf');
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout en worker.get("pdf") - 30 segundos')), 30000)
-    );
-    
-    const pdf = await Promise.race([pdfPromise, timeoutPromise]);
-    console.log('🔄 [Printable] PDF obtenido, generando data URI...');
+    const pdf = await worker.get('pdf');
     const dataUri = pdf.output('datauristring');
-    console.log('🔄 [Printable] Data URI generado, extrayendo base64...');
     const pdfBase64 = dataUri.split(',')[1];
-    console.log('✅ [Printable] PDF generado correctamente, tamaño base64:', pdfBase64.length);
+    console.log('✅ [Printable] PDF generado correctamente');
 
     // --- Enviar por email o descargar como fallback ---
     if (hasEmail) {
@@ -264,35 +168,6 @@ async function initializePrintable() {
 
   } catch (err) {
     console.error('❌ Error:', err);
-    
-    // Si es timeout en worker.get('pdf'), intentar con formato más simple
-    if (err.message && err.message.includes('Timeout en worker.get')) {
-      console.warn('⏰ Timeout en generación de PDF, intentando con formato A4 estándar...');
-      try {
-        const simpleOpts = {
-          margin: 0,
-          filename,
-          image: { type: 'jpeg', quality: 0.8 },
-          html2canvas: { scale: 1.5, useCORS: true, logging: false },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        await html2pdf().set(simpleOpts).from(area).save();
-        console.log('✅ PDF generado con formato A4 estándar como fallback');
-        return;
-      } catch (fallbackErr) {
-        console.error('❌ Error también en fallback A4:', fallbackErr);
-      }
-    }
-    
-    // Si es Safari y hay un error, intentar descarga como último recurso
-    if (isSafari) {
-      console.warn('🍎 Safari: Error durante el proceso, intentando descarga directa como último recurso');
-      try {
-        await html2pdf().set(opts).from(area).save();
-      } catch (downloadErr) {
-        console.error('❌ Error también en descarga:', downloadErr);
-      }
-    }
   }
 }
 
