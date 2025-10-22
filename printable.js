@@ -100,7 +100,14 @@ async function initializePrintable() {
     console.log('🔄 [Printable] Iniciando generación de PDF...');
     const worker = html2pdf().set(opts).from(area).toPdf();
     console.log('🔄 [Printable] Worker creado, obteniendo PDF...');
-    const pdf = await worker.get('pdf');
+    
+    // Añadir timeout específico para worker.get('pdf')
+    const pdfPromise = worker.get('pdf');
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout en worker.get("pdf") - 30 segundos')), 30000)
+    );
+    
+    const pdf = await Promise.race([pdfPromise, timeoutPromise]);
     console.log('🔄 [Printable] PDF obtenido, generando data URI...');
     const dataUri = pdf.output('datauristring');
     console.log('🔄 [Printable] Data URI generado, extrayendo base64...');
@@ -167,6 +174,25 @@ async function initializePrintable() {
 
   } catch (err) {
     console.error('❌ Error:', err);
+    
+    // Si es timeout en worker.get('pdf'), intentar con formato más simple
+    if (err.message && err.message.includes('Timeout en worker.get')) {
+      console.warn('⏰ Timeout en generación de PDF, intentando con formato A4 estándar...');
+      try {
+        const simpleOpts = {
+          margin: 0,
+          filename,
+          image: { type: 'jpeg', quality: 0.8 },
+          html2canvas: { scale: 1.5, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        await html2pdf().set(simpleOpts).from(area).save();
+        console.log('✅ PDF generado con formato A4 estándar como fallback');
+        return;
+      } catch (fallbackErr) {
+        console.error('❌ Error también en fallback A4:', fallbackErr);
+      }
+    }
     
     // Si es Safari y hay un error, intentar descarga como último recurso
     if (isSafari) {
