@@ -201,8 +201,11 @@ function checkAllGraphicsReady() {
   console.log('🔍 [Printable] printableInitialized?', printableInitialized);
   
   if (allReady && !printableInitialized) {
-    console.log('🎯 Todas las gráficas están listas - Esperando a que se muestren los resultados...');
-    // NO inicializar printable.js aquí - esperar al evento gsbResultsReady
+    console.log('🎯 Todas las gráficas están listas - Inicializando printable.js en 3 segundos...');
+    printableInitialized = true;
+    setTimeout(() => {
+      initializePrintable();
+    }, 3000); // 3 segundos para que se muestren los resultados
   }
 }
 
@@ -247,18 +250,18 @@ window.addEventListener('gsbResultsReady', () => {
     printableInitialized = true;
     setTimeout(() => {
       initializePrintable();
-    }, 8000);
+    }, 2000); // Reducido a 2 segundos
   }
 });
 
-// Fallback: Si después de 16 segundos no se ha recibido el evento, ejecutar de todas formas
+// Fallback: Si después de 10 segundos no se ha recibido el evento, ejecutar de todas formas
 setTimeout(() => {
   if (!printableInitialized) {
-    console.warn('⚠️ Timeout: Ejecutando printable.js sin confirmación de resultados listos (16s)');
+    console.warn('⚠️ Timeout: Ejecutando printable.js sin confirmación de resultados listos (10s)');
     printableInitialized = true;
     initializePrintable();
   }
-}, 16000); // 16 segundos (8s para gráficas + 8s para PDF)
+}, 10000); // 10 segundos - más rápido para evitar bloqueos
 
 // También ejecutar cuando el DOM esté listo (para casos donde no hay medias sectoriales)
 document.addEventListener('DOMContentLoaded', () => {
