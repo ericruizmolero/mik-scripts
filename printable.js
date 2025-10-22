@@ -96,7 +96,72 @@ async function initializePrintable() {
       }
     };
 
-    // --- Generar PDF directamente desde el elemento ---
+    // --- Detectar Safari y manejar problemas específicos ---
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    console.log(`🌐 [Printable] Navegador detectado: ${isSafari ? 'Safari' : 'Otro'}`);
+
+    // --- Safari: Usar método alternativo sin html2pdf.js ---
+    if (isSafari) {
+      console.log('🍎 Safari detectado: Usando método alternativo de impresión');
+      try {
+        // Método 1: Usar window.print() con CSS específico
+        const printWindow = window.open('', '_blank');
+        const printContent = area.innerHTML;
+        
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Resultados GSBIndex - ${empresa}</title>
+            <style>
+              @page { 
+                size: A4 landscape; 
+                margin: 0; 
+              }
+              body { 
+                margin: 0; 
+                padding: 20px; 
+                font-family: Arial, sans-serif; 
+                transform: scale(0.8);
+                transform-origin: top left;
+              }
+              * { 
+                box-sizing: border-box; 
+              }
+            </style>
+          </head>
+          <body>
+            ${printContent}
+            <script>
+              window.onload = function() {
+                window.print();
+                setTimeout(() => window.close(), 1000);
+              };
+            </script>
+          </body>
+          </html>
+        `);
+        
+        printWindow.document.close();
+        console.log('✅ Safari: Ventana de impresión abierta');
+        return;
+        
+      } catch (printErr) {
+        console.warn('⚠️ Safari: Fallo en método de impresión, usando descarga directa');
+        // Fallback: Descarga directa con html2pdf simplificado
+        await html2pdf().set({
+          margin: 0,
+          filename,
+          image: { type: 'jpeg', quality: 0.7 },
+          html2canvas: { scale: 1, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        }).from(area).save();
+        console.log('✅ Safari: PDF descargado como fallback');
+        return;
+      }
+    }
+
+    // --- Otros navegadores: Usar html2pdf.js normal ---
     console.log('🔄 [Printable] Iniciando generación de PDF...');
     const worker = html2pdf().set(opts).from(area).toPdf();
     console.log('🔄 [Printable] Worker creado, obteniendo PDF...');
@@ -113,10 +178,6 @@ async function initializePrintable() {
     console.log('🔄 [Printable] Data URI generado, extrayendo base64...');
     const pdfBase64 = dataUri.split(',')[1];
     console.log('✅ [Printable] PDF generado correctamente, tamaño base64:', pdfBase64.length);
-
-    // --- Detectar Safari y manejar problemas específicos ---
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    console.log(`🌐 [Printable] Navegador detectado: ${isSafari ? 'Safari' : 'Otro'}`);
 
     // --- Enviar por email o descargar como fallback ---
     if (hasEmail) {
