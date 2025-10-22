@@ -270,99 +270,10 @@ async function initializePrintable() {
   }
 }
 
-// Sistema de espera: Solo ejecutar cuando todas las gráficas estén listas
-let printableInitialized = false;
-let graphicsReady = {
-  main: false,
-  ambiental: false,
-  social: false,
-  gobernanza: false
-};
+// Sistema simple: Ejecutar printable.js exactamente a los 10 segundos
+console.log('📄 printable.js cargado - Ejecutando en 10 segundos...');
 
-console.log('📄 printable.js cargado - Esperando que todas las gráficas estén listas...');
-
-// Función para verificar si todas las gráficas están listas
-function checkAllGraphicsReady() {
-  console.log('🔍 [Printable] Verificando estado de gráficas:', graphicsReady);
-  
-  const allReady = graphicsReady.main && graphicsReady.ambiental && graphicsReady.social && graphicsReady.gobernanza;
-  
-  console.log('🔍 [Printable] Todas las gráficas listas?', allReady);
-  console.log('🔍 [Printable] printableInitialized?', printableInitialized);
-  
-  if (allReady && !printableInitialized) {
-    console.log('🎯 Todas las gráficas están listas - Inicializando printable.js en 3 segundos...');
-    printableInitialized = true;
-    setTimeout(() => {
-      initializePrintable();
-    }, 3000); // 3 segundos para que se muestren los resultados
-  }
-}
-
-// Escuchar eventos de cada gráfica
-window.addEventListener('gsbMainGraphicsReady', () => {
-  console.log('✅ [Printable] Gráficas principales listas');
-  graphicsReady.main = true;
-  console.log('🔍 [Printable] Estado actualizado:', graphicsReady);
-  checkAllGraphicsReady();
-});
-
-window.addEventListener('gsbAmbientalGraphicsReady', () => {
-  console.log('✅ [Printable] Gráficas ambientales listas');
-  graphicsReady.ambiental = true;
-  console.log('🔍 [Printable] Estado actualizado:', graphicsReady);
-  checkAllGraphicsReady();
-});
-
-window.addEventListener('gsbSocialGraphicsReady', () => {
-  console.log('✅ [Printable] Gráficas sociales listas');
-  graphicsReady.social = true;
-  console.log('🔍 [Printable] Estado actualizado:', graphicsReady);
-  checkAllGraphicsReady();
-});
-
-window.addEventListener('gsbGobernanzaGraphicsReady', () => {
-  console.log('✅ [Printable] Gráficas de gobernanza listas');
-  graphicsReady.gobernanza = true;
-  console.log('🔍 [Printable] Estado actualizado:', graphicsReady);
-  checkAllGraphicsReady();
-});
-
-// Mantener eventos anteriores como fallback
-window.addEventListener('gsbDataSent', (event) => {
-  console.log('📄 [Printable] Datos enviados a Google Sheets (fallback)');
-  // No ejecutar inmediatamente, esperar a que las gráficas estén listas
-});
-
-window.addEventListener('gsbResultsReady', () => {
-  if (!printableInitialized) {
-    console.log('📄 [Printable] Resultados listos - Inicializando printable.js');
-    printableInitialized = true;
-    setTimeout(() => {
-      initializePrintable();
-    }, 2000); // Reducido a 2 segundos
-  }
-});
-
-// Fallback: Si después de 10 segundos no se ha recibido el evento, ejecutar de todas formas
 setTimeout(() => {
-  if (!printableInitialized) {
-    console.warn('⚠️ Timeout: Ejecutando printable.js sin confirmación de resultados listos (10s)');
-    printableInitialized = true;
-    initializePrintable();
-  }
-}, 10000); // 10 segundos - más rápido para evitar bloqueos
-
-// También ejecutar cuando el DOM esté listo (para casos donde no hay medias sectoriales)
-document.addEventListener('DOMContentLoaded', () => {
-  // Solo ejecutar si no hay sistema de medias sectoriales o si ya pasó suficiente tiempo
-  if (!window.gsbSheets) {
-    console.log('📄 Inicializando printable.js - No hay sistema de medias sectoriales');
-    setTimeout(() => {
-      if (!printableInitialized) {
-        printableInitialized = true;
-        initializePrintable();
-      }
-    }, 10000); // Esperar 10 segundos (8s para gráficas + 2s adicionales)
-  }
-});
+  console.log('⏰ [Printable] Ejecutando printable.js después de 10 segundos...');
+  initializePrintable();
+}, 10000); // Exactamente 10 segundos
