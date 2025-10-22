@@ -423,7 +423,7 @@
     if (cueResults) {
       cueResults.style.display = 'block';
     }
-  }, 8000);
+  }, 9000);
 
   // Cargar medias sectoriales inicialmente
   loadSectorialAverages();
