@@ -102,6 +102,10 @@ async function initializePrintable() {
     const dataUri = pdf.output('datauristring');
     const pdfBase64 = dataUri.split(',')[1];
 
+    // --- Detectar Safari y manejar problemas específicos ---
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    console.log(`🌐 [Printable] Navegador detectado: ${isSafari ? 'Safari' : 'Otro'}`);
+
     // --- Enviar por email o descargar como fallback ---
     if (hasEmail) {
       const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/68efc759c7a2aae932ce61d5_Copia%20de%20ANEXO%201__GUIA.pdf";
@@ -131,10 +135,17 @@ async function initializePrintable() {
       });
 
       if (!resp.ok) {
-        console.warn('Fallo al enviar email, se descargará el PDF localmente.');
-        await html2pdf().set(opts).from(area).save();
         const err = await resp.json().catch(() => ({}));
-        throw new Error(err.error || 'Error enviando el email');
+        const errorMsg = err.error || 'Error enviando el email';
+        
+        if (isSafari) {
+          console.warn(`🍎 Safari: Fallo al enviar email (${errorMsg}), descargando PDF localmente como fallback`);
+        } else {
+          console.warn(`Fallo al enviar email (${errorMsg}), se descargará el PDF localmente.`);
+        }
+        
+        await html2pdf().set(opts).from(area).save();
+        return; // No lanzar error, solo hacer fallback
       }
 
       console.log(`✅ PDF enviado correctamente a ${to}`);
@@ -145,6 +156,16 @@ async function initializePrintable() {
 
   } catch (err) {
     console.error('❌ Error:', err);
+    
+    // Si es Safari y hay un error, intentar descarga como último recurso
+    if (isSafari) {
+      console.warn('🍎 Safari: Error durante el proceso, intentando descarga directa como último recurso');
+      try {
+        await html2pdf().set(opts).from(area).save();
+      } catch (downloadErr) {
+        console.error('❌ Error también en descarga:', downloadErr);
+      }
+    }
   }
 }
 
