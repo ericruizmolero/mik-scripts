@@ -4,8 +4,16 @@
  */
 
 class GSBSheetsIntegration {
-    constructor() {
-        this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBdNZ2QxWnQj58RUZxhKc9X1wT8dfr7kUNxnQnFvNfetodc4p-wQrVxtEeKleAEeeh/exec'; // ⚠️ REEMPLAZA CON LA URL FINAL DE LA IMPLEMENTACIÓN
+  constructor() {
+    this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAbQgeZF_1nbNyYGBhA_6HFBBLvPqU3x6qcwBXECrlbznknylp4GbX3n1NW8E_sVf5eQ/exec';
+    
+    // Función para generar timestamp en horario español
+    this.getSpanishTimestamp = () => {
+      const now = new Date();
+      // Convertir a horario español (UTC+1 en invierno, UTC+2 en verano)
+      const spanishTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Madrid"}));
+      return spanishTime.toISOString();
+    }; // ⚠️ REEMPLAZA CON LA URL FINAL DE LA IMPLEMENTACIÓN
         this.isInitialized = false;
         this.sectorialCache = new Map(); // Cache para evitar llamadas duplicadas
         this.pendingRequests = new Map(); // Control de requests pendientes
@@ -396,7 +404,7 @@ class GSBSheetsIntegration {
             const completeData = {
                 ...formData,
                 ...metrics,
-                timestamp: new Date().toISOString()
+                timestamp: this.getSpanishTimestamp()
             };
             
             console.log('📤 [Sheets] Datos completos a enviar:', Object.keys(completeData).length, 'campos');
@@ -436,7 +444,7 @@ class GSBSheetsIntegration {
                             media_gobernanza: completeData.media_gobernanza,
                             gsb_index_total: completeData.gsb_index_total
                         },
-                        timestamp: new Date().toISOString()
+                        timestamp: this.getSpanishTimestamp()
                     }
                 });
                 window.dispatchEvent(event);
@@ -1003,7 +1011,7 @@ class GSBSheetsIntegration {
     // Guardar datos completos en localStorage como respaldo
     saveCompleteDataToLocalStorage(data) {
         try {
-            const timestamp = new Date().toISOString();
+            const timestamp = this.getSpanishTimestamp();
             const storageKey = `gsb_data_${timestamp}`;
             
             // Guardar datos con timestamp
@@ -1195,7 +1203,7 @@ class GSBSheetsIntegration {
         const syncEvent = new CustomEvent('gsbDataSync', {
             detail: {
                 source: 'sheets',
-                timestamp: new Date().toISOString()
+                timestamp: this.getSpanishTimestamp()
             }
         });
         window.dispatchEvent(syncEvent);
