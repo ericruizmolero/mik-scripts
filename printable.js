@@ -150,17 +150,43 @@ async function initializePrintable() {
         return;
         
       } catch (printErr) {
-        console.warn('⚠️ Safari: Fallo en método de impresión, usando descarga directa');
-        // Fallback: Descarga directa con html2pdf simplificado
-        await html2pdf().set({
-          margin: 0,
-          filename,
-          image: { type: 'jpeg', quality: 0.7 },
-          html2canvas: { scale: 1, useCORS: true, logging: false },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        }).from(area).save();
-        console.log('✅ Safari: PDF descargado como fallback');
-        return;
+        console.warn('⚠️ Safari: Fallo en método de impresión:', printErr.message);
+        console.log('🔄 Safari: Intentando fallback con html2pdf simplificado...');
+        
+        try {
+          // Fallback: Descarga directa con html2pdf simplificado
+          const simpleOpts = {
+            margin: 0,
+            filename,
+            image: { type: 'jpeg', quality: 0.6 },
+            html2canvas: { 
+              scale: 0.8, 
+              useCORS: true, 
+              logging: false,
+              allowTaint: true,
+              backgroundColor: '#ffffff'
+            },
+            jsPDF: { 
+              unit: 'mm', 
+              format: 'a4', 
+              orientation: 'landscape',
+              compress: true
+            }
+          };
+          
+          console.log('🔄 Safari: Generando PDF con opciones simplificadas...');
+          await html2pdf().set(simpleOpts).from(area).save();
+          console.log('✅ Safari: PDF descargado como fallback');
+          return;
+          
+        } catch (fallbackErr) {
+          console.error('❌ Safari: Error también en fallback:', fallbackErr.message);
+          console.log('🍎 Safari: Intentando método de emergencia...');
+          
+          // Método de emergencia: Solo mostrar mensaje
+          alert(`Safari detectado: Por favor, usa Ctrl+P (Cmd+P en Mac) para imprimir esta página.\n\nEmpresa: ${empresa}\nEmail: ${to || 'No especificado'}`);
+          return;
+        }
       }
     }
 
