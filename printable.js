@@ -97,10 +97,15 @@ async function initializePrintable() {
     };
 
     // --- Generar PDF directamente desde el elemento ---
+    console.log('🔄 [Printable] Iniciando generación de PDF...');
     const worker = html2pdf().set(opts).from(area).toPdf();
+    console.log('🔄 [Printable] Worker creado, obteniendo PDF...');
     const pdf = await worker.get('pdf');
+    console.log('🔄 [Printable] PDF obtenido, generando data URI...');
     const dataUri = pdf.output('datauristring');
+    console.log('🔄 [Printable] Data URI generado, extrayendo base64...');
     const pdfBase64 = dataUri.split(',')[1];
+    console.log('✅ [Printable] PDF generado correctamente, tamaño base64:', pdfBase64.length);
 
     // --- Detectar Safari y manejar problemas específicos ---
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -108,6 +113,7 @@ async function initializePrintable() {
 
     // --- Enviar por email o descargar como fallback ---
     if (hasEmail) {
+      console.log('📧 [Printable] Preparando envío de email...');
       const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/68efc759c7a2aae932ce61d5_Copia%20de%20ANEXO%201__GUIA.pdf";
       
       // --- Email simple y limpio ---
@@ -128,11 +134,16 @@ async function initializePrintable() {
         filename
       };
 
+      console.log('📤 [Printable] Enviando email a:', to);
+      console.log('📤 [Printable] Tamaño del payload:', JSON.stringify(payload).length, 'caracteres');
+      
       const resp = await fetch('https://email-send-sigma.vercel.app/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      
+      console.log('📤 [Printable] Respuesta del servidor:', resp.status, resp.statusText);
 
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({}));
