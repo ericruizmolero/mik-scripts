@@ -29,7 +29,7 @@
             } else {
                 console.warn('window.history.replaceState no está disponible');
             }
-        }, 1000); // Esperar 1 segundo para asegurar que todos los cálculos han terminado
+        }, 12000); // Esperar 1 segundo para asegurar que todos los cálculos han terminado
     }
     
 })();
