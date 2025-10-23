@@ -312,7 +312,8 @@
       'ambiental-index',
       '.result_char.is-ambiental-you',
       '.result_char.is-ambiental-sector',
-      'ambiental-percent'
+      'ambiental-percent',
+      '.result_icons.is-ambiental'
     );
     
     // Actualizar elementos de social
@@ -322,7 +323,8 @@
       'social-index',
       '.result_char.is-social-you',
       '.result_char.is-social-sector',
-      'social-percent'
+      'social-percent',
+      '.result_icons.is-social'
     );
     
     // Actualizar elementos de gobernanza
@@ -332,7 +334,8 @@
       'gobernanza-index',
       '.result_char.is-gobernanza-you',
       '.result_char.is-gobernanza-sector',
-      'gobernanza-percent'
+      'gobernanza-percent',
+      '.result_icons.is-gobernanza'
     );
     
     // Actualizar elementos de GSB
@@ -342,14 +345,15 @@
       'gsb-index',
       '.result_char.is-gsb-you',
       '.result_char.is-gsb-sector',
-      'gsbindex-percent'
+      'gsbindex-percent',
+      '.result_icons.is-gsb'
     );
 
     console.log('✅ [Main] Gráficas actualizadas con nuevas medias');
   }
 
   // Función para mostrar resultado principal (copiado de mostrarResultadoTematica de grafica-ambiental.js)
-  function mostrarResultadoMain(valor, valorSectorial, idIndex, claseYou, claseSector, idPercent) {
+  function mostrarResultadoMain(valor, valorSectorial, idIndex, claseYou, claseSector, idPercent, claseIcons) {
     // Mostrar valor en el índice
     const elIndex = document.getElementById(idIndex);
     if (elIndex) {
@@ -378,6 +382,35 @@
         elPercent.textContent = '+' + diferenciaRedondeada + '%';
       } else {
         elPercent.textContent = diferenciaRedondeada + '%';
+      }
+    }
+
+    // Aplicar clases según si es positivo o negativo
+    const elementoIcons = document.querySelector(claseIcons);
+    if (elementoIcons) {
+      const iconGreen = elementoIcons.querySelector('.result_icon-green');
+      const iconRed = elementoIcons.querySelector('.result_icon-red');
+      
+      if (diferenciaRedondeada >= 0) {
+        // Positivo: activar verde, desactivar rojo
+        if (iconGreen) {
+          iconGreen.classList.remove('is-inactive');
+          iconGreen.classList.add('is-active');
+        }
+        if (iconRed) {
+          iconRed.classList.remove('is-active');
+          iconRed.classList.add('is-inactive');
+        }
+      } else {
+        // Negativo: activar rojo, desactivar verde
+        if (iconRed) {
+          iconRed.classList.remove('is-inactive');
+          iconRed.classList.add('is-active');
+        }
+        if (iconGreen) {
+          iconGreen.classList.remove('is-active');
+          iconGreen.classList.add('is-inactive');
+        }
       }
     }
   }
