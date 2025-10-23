@@ -186,7 +186,7 @@
       '.result_char.is-gobernanza-tematica-you-2',
       '.result_char.is-gobernanza-tematica-sector-2',
       'gobernanza-tematica-percent-2',
-      '.result_icons.is-eco'
+      '.result_icons.is-financiero'
     );
     
     // Actualizar elementos de proveedores
