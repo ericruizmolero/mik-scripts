@@ -376,6 +376,8 @@
     const diferencia = valor - valorSectorial;
     const diferenciaRedondeada = Math.round(diferencia * 10) / 10;
     
+    console.log(`📊 [Main] ${idIndex}: valor=${valor}, sectorial=${valorSectorial}, diferencia=${diferenciaRedondeada}`);
+    
     const elPercent = document.getElementById(idPercent);
     if (elPercent) {
       if (diferenciaRedondeada >= 0) {
@@ -391,8 +393,11 @@
       const iconGreen = elementoIcons.querySelector('.result_icon-green');
       const iconRed = elementoIcons.querySelector('.result_icon-red');
       
+      console.log(`🔍 [Main] ${claseIcons}: diferencia=${diferenciaRedondeada}, verde=${!!iconGreen}, rojo=${!!iconRed}`);
+      
       if (diferenciaRedondeada >= 0) {
         // Positivo: activar verde, desactivar rojo
+        console.log(`✅ [Main] ${claseIcons}: Activando verde (positivo)`);
         if (iconGreen) {
           iconGreen.classList.remove('is-inactive');
           iconGreen.classList.add('is-active');
@@ -403,6 +408,7 @@
         }
       } else {
         // Negativo: activar rojo, desactivar verde
+        console.log(`❌ [Main] ${claseIcons}: Activando rojo (negativo)`);
         if (iconRed) {
           iconRed.classList.remove('is-inactive');
           iconRed.classList.add('is-active');
@@ -412,6 +418,8 @@
           iconGreen.classList.add('is-inactive');
         }
       }
+    } else {
+      console.warn(`⚠️ [Main] No se encontró elemento: ${claseIcons}`);
     }
   }
   
