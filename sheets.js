@@ -5,7 +5,7 @@
 
 class GSBSheetsIntegration {
   constructor() {
-    this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8fRGCABjFWQAwhHef6KgSIVWXXFtvjMgR-0VbnIYPB-et170bXf1RmqPpiRFj_Ccx/exec';
+    this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8qZEAEKOWHju1g8m33snvuXu_lyI2G9tnM4br6BINnpgH3MGv7FRbeaacXd6t-UgfNw/exec';
     
     // Función para generar timestamp en horario español
     this.getSpanishTimestamp = () => {
@@ -541,6 +541,18 @@ class GSBSheetsIntegration {
         // Campos adicionales
         const pf1 = this.getParamValue(params, 'pf1');
         const pf2 = this.getParamValue(params, 'pf2');
+        
+        // Campos de aceptación de protección de datos
+        let acepta_proteccion_datos = this.getParamValue(params, 'acepta-proteccion-datos');
+        let acepta_utilizar_sus_datos = this.getParamValue(params, 'acepta-utilizar-sus-datos');
+        
+        // Si no están en la URL pero hay datos decodificados, buscarlos ahí
+        if (!acepta_proteccion_datos && window.decodedFormData) {
+            acepta_proteccion_datos = window.decodedFormData['acepta-proteccion-datos'] || '';
+        }
+        if (!acepta_utilizar_sus_datos && window.decodedFormData) {
+            acepta_utilizar_sus_datos = window.decodedFormData['acepta-utilizar-sus-datos'] || '';
+        }
 
         return {
             email: decodeURIComponent(email),
@@ -558,6 +570,8 @@ class GSBSheetsIntegration {
             nombre: decodeURIComponent(nombre),
             pf1: decodeURIComponent(pf1),
             pf2: decodeURIComponent(pf2),
+            acepta_proteccion_datos: decodeURIComponent(acepta_proteccion_datos || ''),
+            acepta_utilizar_sus_datos: decodeURIComponent(acepta_utilizar_sus_datos || ''),
             ...responses
         };
     }
@@ -658,7 +672,9 @@ class GSBSheetsIntegration {
     calculateImpactoClimatico(params) {
         const p17 = this.extractNumericValue(params.get('Pregunta-17'));
         const p18 = this.extractNumericValue(params.get('Pregunta-18'));
-        const p21_3 = this.extractNumericValue(params.get('Pregunta-21.3'));
+        // p21_3: si es 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+        const p21_3_raw = this.extractNumericValue(params.get('Pregunta-21.3'));
+        const p21_3 = Math.abs(p21_3_raw - 14.29) < 0.01 ? 100 : p21_3_raw;
         const p22_5 = this.extractNumericValue(params.get('Pregunta-22.5'));
         const p22_1 = this.extractNumericValue(params.get('Pregunta-22.1'));
         const p22_2 = this.extractNumericValue(params.get('Pregunta-22.2'));
@@ -667,12 +683,14 @@ class GSBSheetsIntegration {
     }
 
     calculateGestionSostenible(params) {
-        // p23: suma de checkboxes (p23.2, p23.3, p23.4, p23.5)
-        const p23_2 = params.get('p23.2-16.66666667') ? 16.67 : 0;
-        const p23_3 = params.get('p23.3-16.66666667') ? 16.67 : 0;
-        const p23_4 = params.get('p23.4-16.66666667') ? 16.67 : 0;
-        const p23_5 = params.get('p23.5-16.66666667') ? 16.67 : 0;
-        const p23 = p23_2 + p23_3 + p23_4 + p23_5;
+        // p23: suma de checkboxes (p23.1, p23.2, p23.3, p23.4, p23.5, p23.6)
+        const p23_1 = params.get('p23.1-16.66666667') ? 16.66666667 : 0;
+        const p23_2 = params.get('p23.2-16.66666667') ? 16.66666667 : 0;
+        const p23_3 = params.get('p23.3-16.66666667') ? 16.66666667 : 0;
+        const p23_4 = params.get('p23.4-16.66666667') ? 16.66666667 : 0;
+        const p23_5 = params.get('p23.5-16.66666667') ? 16.66666667 : 0;
+        const p23_6 = params.get('p23.6-16.66666667') ? 16.66666667 : 0;
+        const p23 = p23_1 + p23_2 + p23_3 + p23_4 + p23_5 + p23_6;
         
         const p19 = this.extractNumericValue(params.get('Pregunta-19'));
         const p22_3 = this.extractNumericValue(params.get('Pregunta-22.3'));
@@ -684,7 +702,9 @@ class GSBSheetsIntegration {
 
     calculateBiodiversidad(params) {
         const p22_7 = this.extractNumericValue(params.get('Pregunta-22.7'));
-        const p21_4 = this.extractNumericValue(params.get('Pregunta-21.4'));
+        // p21_4: si es 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+        const p21_4_raw = this.extractNumericValue(params.get('Pregunta-21.4'));
+        const p21_4 = Math.abs(p21_4_raw - 14.29) < 0.01 ? 100 : p21_4_raw;
         const p20 = this.extractNumericValue(params.get('Pregunta-20'));
         
         return (p22_7 + p21_4 + p20) / 3;
@@ -692,8 +712,11 @@ class GSBSheetsIntegration {
 
     calculateGestionAmbiental(params) {
         const p24 = this.extractNumericValue(params.get('Pregunta-24'));
-        const p21a = this.extractNumericValue(params.get('Pregunta-21.1'));
-        const p21b = this.extractNumericValue(params.get('Pregunta-21.2'));
+        // p21a y p21b: si son 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+        const p21a_raw = this.extractNumericValue(params.get('Pregunta-21.1'));
+        const p21a = Math.abs(p21a_raw - 14.29) < 0.01 ? 100 : p21a_raw;
+        const p21b_raw = this.extractNumericValue(params.get('Pregunta-21.2'));
+        const p21b = Math.abs(p21b_raw - 14.29) < 0.01 ? 100 : p21b_raw;
         const p21 = (p21a + p21b) / 2;
         
         return (p24 + p21) / 2;
@@ -727,6 +750,7 @@ class GSBSheetsIntegration {
     }
 
     calculateEcoFinanciero(params) {
+        // p25: suma de sub-preguntas (Pregunta-25.1 a Pregunta-25.7) - cada respuesta puede ser 14.29 o 0
         const p25a = this.extractNumericValue(params.get('Pregunta-25.1'));
         const p25b = this.extractNumericValue(params.get('Pregunta-25.2'));
         const p25c = this.extractNumericValue(params.get('Pregunta-25.3'));
@@ -734,7 +758,7 @@ class GSBSheetsIntegration {
         const p25e = this.extractNumericValue(params.get('Pregunta-25.5'));
         const p25f = this.extractNumericValue(params.get('Pregunta-25.6'));
         const p25g = this.extractNumericValue(params.get('Pregunta-25.7'));
-        const p25 = (p25a + p25b + p25c + p25d + p25e + p25f + p25g) / 7;
+        const p25 = p25a + p25b + p25c + p25d + p25e + p25f + p25g;
         
         const p26_1 = params.get('p26.1-33.33') ? 33.33 : 0;
         const p26_2 = params.get('p26.2-33.33') ? 33.33 : 0;
@@ -748,6 +772,7 @@ class GSBSheetsIntegration {
     }
 
     calculateProveedores(params) {
+        // p14: suma de sub-preguntas (Pregunta-14.1 a Pregunta-14.7) - cada respuesta puede ser 14.29 o 0
         const p14a = this.extractNumericValue(params.get('Pregunta-14.1'));
         const p14b = this.extractNumericValue(params.get('Pregunta-14.2'));
         const p14c = this.extractNumericValue(params.get('Pregunta-14.3'));
@@ -755,7 +780,7 @@ class GSBSheetsIntegration {
         const p14e = this.extractNumericValue(params.get('Pregunta-14.5'));
         const p14f = this.extractNumericValue(params.get('Pregunta-14.6'));
         const p14g = this.extractNumericValue(params.get('Pregunta-14.7'));
-        const p14 = (p14a + p14b + p14c + p14d + p14e + p14f + p14g) / 7;
+        const p14 = p14a + p14b + p14c + p14d + p14e + p14f + p14g;
         
         const p15 = this.extractNumericValue(params.get('Pregunta-15'));
         const p16 = this.extractNumericValue(params.get('Pregunta-16'));
@@ -791,6 +816,7 @@ class GSBSheetsIntegration {
     calculateInterno(params) {
         const p8 = this.extractNumericValue(params.get('Pregunta-8'));
         
+        // p9: suma de sub-preguntas (Pregunta-9.1 a Pregunta-9.8) - cada respuesta puede ser 12.5 o 0
         const p9a = this.extractNumericValue(params.get('Pregunta-9.1'));
         const p9b = this.extractNumericValue(params.get('Pregunta-9.2'));
         const p9c = this.extractNumericValue(params.get('Pregunta-9.3'));
@@ -799,7 +825,7 @@ class GSBSheetsIntegration {
         const p9f = this.extractNumericValue(params.get('Pregunta-9.6'));
         const p9g = this.extractNumericValue(params.get('Pregunta-9.7'));
         const p9h = this.extractNumericValue(params.get('Pregunta-9.8'));
-        const p9 = (p9a + p9b + p9c + p9d + p9e + p9f + p9g + p9h) / 8;
+        const p9 = p9a + p9b + p9c + p9d + p9e + p9f + p9g + p9h;
         
         const p10 = this.extractNumericValue(params.get('Pregunta-10'));
         
@@ -812,6 +838,7 @@ class GSBSheetsIntegration {
         const p11 = p11_1 + p11_2 + p11_3 + p11_4 + p11_5;
         
         
+        // p12: suma de sub-preguntas (Pregunta-12.1 a Pregunta-12.8) - cada respuesta puede ser 12.5 o 0
         const p12a = this.extractNumericValue(params.get('Pregunta-12.1'));
         const p12b = this.extractNumericValue(params.get('Pregunta-12.2'));
         const p12c = this.extractNumericValue(params.get('Pregunta-12.3'));
@@ -820,7 +847,7 @@ class GSBSheetsIntegration {
         const p12f = this.extractNumericValue(params.get('Pregunta-12.6'));
         const p12g = this.extractNumericValue(params.get('Pregunta-12.7'));
         const p12h = this.extractNumericValue(params.get('Pregunta-12.8'));
-        const p12 = (p12a + p12b + p12c + p12d + p12e + p12f + p12g + p12h) / 8;
+        const p12 = p12a + p12b + p12c + p12d + p12e + p12f + p12g + p12h;
         
         return (p8 + p9 + p10 + p11 + p12) / 5;
     }
