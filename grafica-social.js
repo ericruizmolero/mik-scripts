@@ -17,7 +17,7 @@
   function calcularInterno() {
     const p8 = extraerValor(params.get('Pregunta-8'));
     
-    // p9: media de sub-preguntas (Pregunta-9.1 a Pregunta-9.8)
+    // p9: suma de sub-preguntas (Pregunta-9.1 a Pregunta-9.8) - cada respuesta puede ser 12.5 o 0
     const p9a = extraerValor(params.get('Pregunta-9.1'));
     const p9b = extraerValor(params.get('Pregunta-9.2'));
     const p9c = extraerValor(params.get('Pregunta-9.3'));
@@ -26,7 +26,7 @@
     const p9f = extraerValor(params.get('Pregunta-9.6'));
     const p9g = extraerValor(params.get('Pregunta-9.7'));
     const p9h = extraerValor(params.get('Pregunta-9.8'));
-    const p9 = (p9a + p9b + p9c + p9d + p9e + p9f + p9g + p9h) / 8;
+    const p9 = p9a + p9b + p9c + p9d + p9e + p9f + p9g + p9h;
     
     const p10 = extraerValor(params.get('Pregunta-10'));
     
@@ -37,7 +37,7 @@
     const p11_4 = params.get('p11.4-25') ? 25 : 0;
     const p11 = p11_1 + p11_2 + p11_3 + p11_4;
     
-    // p12: media de sub-preguntas (Pregunta-12.1 a Pregunta-12.8)
+    // p12: suma de sub-preguntas (Pregunta-12.1 a Pregunta-12.8) - cada respuesta puede ser 12.5 o 0
     const p12a = extraerValor(params.get('Pregunta-12.1'));
     const p12b = extraerValor(params.get('Pregunta-12.2'));
     const p12c = extraerValor(params.get('Pregunta-12.3'));
@@ -46,7 +46,7 @@
     const p12f = extraerValor(params.get('Pregunta-12.6'));
     const p12g = extraerValor(params.get('Pregunta-12.7'));
     const p12h = extraerValor(params.get('Pregunta-12.8'));
-    const p12 = (p12a + p12b + p12c + p12d + p12e + p12f + p12g + p12h) / 8;
+    const p12 = p12a + p12b + p12c + p12d + p12e + p12f + p12g + p12h;
     
     return (p8 + p9 + p10 + p11 + p12) / 5;
   }
