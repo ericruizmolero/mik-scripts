@@ -34,7 +34,7 @@
 
   // 2. Eco-financiero y digitalización - p25, p26, p27, p28
   function calcularEcoFinanciero() {
-    // p25: media de sub-preguntas (Pregunta-25.1 a Pregunta-25.7)
+    // p25: suma de sub-preguntas (Pregunta-25.1 a Pregunta-25.7) - cada respuesta puede ser 14.29 o 0
     const p25a = extraerValor(params.get('Pregunta-25.1'));
     const p25b = extraerValor(params.get('Pregunta-25.2'));
     const p25c = extraerValor(params.get('Pregunta-25.3'));
@@ -42,7 +42,7 @@
     const p25e = extraerValor(params.get('Pregunta-25.5'));
     const p25f = extraerValor(params.get('Pregunta-25.6'));
     const p25g = extraerValor(params.get('Pregunta-25.7'));
-    const p25 = (p25a + p25b + p25c + p25d + p25e + p25f + p25g) / 7;
+    const p25 = p25a + p25b + p25c + p25d + p25e + p25f + p25g;
     
     // p26: suma de checkboxes (p26.1, p26.2, p26.3)
     const p26_1 = params.get('p26.1-33.33') ? 33.33 : 0;
@@ -58,7 +58,7 @@
 
   // 3. Proveedores - p14, p15, p16
   function calcularProveedores() {
-    // p14: media de sub-preguntas (Pregunta-14.1 a Pregunta-14.7)
+    // p14: suma de sub-preguntas (Pregunta-14.1 a Pregunta-14.7) - cada respuesta puede ser 14.29 o 0
     const p14a = extraerValor(params.get('Pregunta-14.1'));
     const p14b = extraerValor(params.get('Pregunta-14.2'));
     const p14c = extraerValor(params.get('Pregunta-14.3'));
@@ -66,7 +66,7 @@
     const p14e = extraerValor(params.get('Pregunta-14.5'));
     const p14f = extraerValor(params.get('Pregunta-14.6'));
     const p14g = extraerValor(params.get('Pregunta-14.7'));
-    const p14 = (p14a + p14b + p14c + p14d + p14e + p14f + p14g) / 7;
+    const p14 = p14a + p14b + p14c + p14d + p14e + p14f + p14g;
     
     const p15 = extraerValor(params.get('Pregunta-15'));
     const p16 = extraerValor(params.get('Pregunta-16'));
