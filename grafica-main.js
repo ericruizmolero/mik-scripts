@@ -12,20 +12,23 @@
     // 1. Impacto Climático - p17, p18, p21.3, p22.5, p22.1, p22.2
     const p17 = extraerValor(params.get('Pregunta-17'));
     const p18 = extraerValor(params.get('Pregunta-18'));
-    const p21_3 = extraerValor(params.get('Pregunta-21.3'));
+    // p21_3: si es 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+    const p21_3_raw = extraerValor(params.get('Pregunta-21.3'));
+    const p21_3 = Math.abs(p21_3_raw - 14.29) < 0.01 ? 100 : p21_3_raw;
     const p22_5 = extraerValor(params.get('Pregunta-22.5'));
     const p22_1 = extraerValor(params.get('Pregunta-22.1'));
     const p22_2 = extraerValor(params.get('Pregunta-22.2'));
     const impactoClimatico = (p17 + p18 + p21_3 + p22_5 + p22_1 + p22_2) / 6;
     
     // 2. Gestión Sostenible - p23, p19, p22.3, p22.4, p22.6
-    // p23: suma de checkboxes (p23.2, p23.3, p23.4, p23.5, p23.6)
-      const p23_2 = params.get('p23.2-16.66666667') ? 16.67 : 0;
-      const p23_3 = params.get('p23.3-16.66666667') ? 16.67 : 0;
-      const p23_4 = params.get('p23.4-16.66666667') ? 16.67 : 0;
-      const p23_5 = params.get('p23.5-16.66666667') ? 16.67 : 0;
-      const p23_6 = params.get('p23.6-16.66666667') ? 16.67 : 0;
-    const p23 = p23_2 + p23_3 + p23_4 + p23_5 + p23_6;
+    // p23: suma de checkboxes (p23.1, p23.2, p23.3, p23.4, p23.5, p23.6)
+      const p23_1 = params.get('p23.1-16.66666667') ? 16.66666667 : 0;
+      const p23_2 = params.get('p23.2-16.66666667') ? 16.66666667 : 0;
+      const p23_3 = params.get('p23.3-16.66666667') ? 16.66666667 : 0;
+      const p23_4 = params.get('p23.4-16.66666667') ? 16.66666667 : 0;
+      const p23_5 = params.get('p23.5-16.66666667') ? 16.66666667 : 0;
+      const p23_6 = params.get('p23.6-16.66666667') ? 16.66666667 : 0;
+    const p23 = p23_1 + p23_2 + p23_3 + p23_4 + p23_5 + p23_6;
     
     const p19 = extraerValor(params.get('Pregunta-19'));
     const p22_3 = extraerValor(params.get('Pregunta-22.3'));
@@ -35,7 +38,9 @@
     
     // 3. Biodiversidad y Ecosistemas - p22.7, p21.4, p20
     const p22_7 = extraerValor(params.get('Pregunta-22.7'));
-    const p21_4 = extraerValor(params.get('Pregunta-21.4'));
+    // p21_4: si es 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+    const p21_4_raw = extraerValor(params.get('Pregunta-21.4'));
+    const p21_4 = Math.abs(p21_4_raw - 14.29) < 0.01 ? 100 : p21_4_raw;
     const p20 = extraerValor(params.get('Pregunta-20'));
     const biodiversidad = (p22_7 + p21_4 + p20) / 3;
     
@@ -43,8 +48,11 @@
       const p24 = extraerValor(params.get('Pregunta-24'));
       
     // p21: media de sub-preguntas (Pregunta-21.1, Pregunta-21.2)
-      const p21a = extraerValor(params.get('Pregunta-21.1'));
-      const p21b = extraerValor(params.get('Pregunta-21.2'));
+      // p21a y p21b: si son 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+      const p21a_raw = extraerValor(params.get('Pregunta-21.1'));
+      const p21a = Math.abs(p21a_raw - 14.29) < 0.01 ? 100 : p21a_raw;
+      const p21b_raw = extraerValor(params.get('Pregunta-21.2'));
+      const p21b = Math.abs(p21b_raw - 14.29) < 0.01 ? 100 : p21b_raw;
     const p21 = (p21a + p21b) / 2;
     
     const gestionAmbiental = (p24 + p21) / 2;
@@ -72,7 +80,7 @@
     const estrategiaEmpresarial = (p1 + p2 + p3) / 3;
     
     // 2. Eco-financiero y digitalización - p25, p26, p27, p28
-      // p25: media de sub-preguntas (Pregunta-25.1 a Pregunta-25.7)
+      // p25: suma de sub-preguntas (Pregunta-25.1 a Pregunta-25.7) - cada respuesta puede ser 14.29 o 0
       const p25a = extraerValor(params.get('Pregunta-25.1'));
       const p25b = extraerValor(params.get('Pregunta-25.2'));
       const p25c = extraerValor(params.get('Pregunta-25.3'));
@@ -80,7 +88,7 @@
       const p25e = extraerValor(params.get('Pregunta-25.5'));
       const p25f = extraerValor(params.get('Pregunta-25.6'));
       const p25g = extraerValor(params.get('Pregunta-25.7'));
-      const p25 = (p25a + p25b + p25c + p25d + p25e + p25f + p25g) / 7;
+      const p25 = p25a + p25b + p25c + p25d + p25e + p25f + p25g;
       
     // p26: suma de checkboxes (p26.1, p26.2, p26.3)
       const p26_1 = params.get('p26.1-33.33') ? 33.33 : 0;
@@ -93,7 +101,7 @@
     const ecoFinanciero = (p25 + p26 + p27 + p28) / 4;
       
     // 3. Proveedores - p14, p15, p16
-      // p14: media de sub-preguntas (Pregunta-14.1 a Pregunta-14.7)
+      // p14: suma de sub-preguntas (Pregunta-14.1 a Pregunta-14.7) - cada respuesta puede ser 14.29 o 0
       const p14a = extraerValor(params.get('Pregunta-14.1'));
       const p14b = extraerValor(params.get('Pregunta-14.2'));
       const p14c = extraerValor(params.get('Pregunta-14.3'));
@@ -101,7 +109,7 @@
       const p14e = extraerValor(params.get('Pregunta-14.5'));
       const p14f = extraerValor(params.get('Pregunta-14.6'));
       const p14g = extraerValor(params.get('Pregunta-14.7'));
-      const p14 = (p14a + p14b + p14c + p14d + p14e + p14f + p14g) / 7;
+      const p14 = p14a + p14b + p14c + p14d + p14e + p14f + p14g;
       
       const p15 = extraerValor(params.get('Pregunta-15'));
       const p16 = extraerValor(params.get('Pregunta-16'));
@@ -132,7 +140,7 @@
     // 1. Interno - p8, p9, p10, p11, p12
       const p8 = extraerValor(params.get('Pregunta-8'));
       
-      // p9: media de sub-preguntas (Pregunta-9.1 a Pregunta-9.8)
+      // p9: suma de sub-preguntas (Pregunta-9.1 a Pregunta-9.8) - cada respuesta puede ser 12.5 o 0
       const p9a = extraerValor(params.get('Pregunta-9.1'));
       const p9b = extraerValor(params.get('Pregunta-9.2'));
       const p9c = extraerValor(params.get('Pregunta-9.3'));
@@ -141,7 +149,7 @@
       const p9f = extraerValor(params.get('Pregunta-9.6'));
       const p9g = extraerValor(params.get('Pregunta-9.7'));
       const p9h = extraerValor(params.get('Pregunta-9.8'));
-      const p9 = (p9a + p9b + p9c + p9d + p9e + p9f + p9g + p9h) / 8;
+      const p9 = p9a + p9b + p9c + p9d + p9e + p9f + p9g + p9h;
       
       const p10 = extraerValor(params.get('Pregunta-10'));
       
@@ -152,7 +160,7 @@
       const p11_4 = params.get('p11.4-25') ? 25 : 0;
     const p11 = p11_1 + p11_2 + p11_3 + p11_4;
       
-      // p12: media de sub-preguntas (Pregunta-12.1 a Pregunta-12.8)
+      // p12: suma de sub-preguntas (Pregunta-12.1 a Pregunta-12.8) - cada respuesta puede ser 12.5 o 0
       const p12a = extraerValor(params.get('Pregunta-12.1'));
       const p12b = extraerValor(params.get('Pregunta-12.2'));
       const p12c = extraerValor(params.get('Pregunta-12.3'));
@@ -161,7 +169,7 @@
       const p12f = extraerValor(params.get('Pregunta-12.6'));
       const p12g = extraerValor(params.get('Pregunta-12.7'));
       const p12h = extraerValor(params.get('Pregunta-12.8'));
-      const p12 = (p12a + p12b + p12c + p12d + p12e + p12f + p12g + p12h) / 8;
+      const p12 = p12a + p12b + p12c + p12d + p12e + p12f + p12g + p12h;
       
     const interno = (p8 + p9 + p10 + p11 + p12) / 5;
       
