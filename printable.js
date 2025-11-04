@@ -42,18 +42,53 @@ async function initializePrintable() {
 
   // Utilidades
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  const waitForImages = (root) => {
+  
+  // waitForImages con timeout máximo para evitar bloqueos
+  const waitForImages = (root, maxWait = 5000) => {
     const imgs = Array.from(root.querySelectorAll('img'));
-    if (!imgs.length) return Promise.resolve();
-    return Promise.all(
-      imgs.map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((res) => {
-          img.addEventListener('load', res, { once: true });
-          img.addEventListener('error', res, { once: true });
-        });
-      })
-    );
+    if (!imgs.length) {
+      console.log('📸 [Printable] No hay imágenes que esperar');
+      return Promise.resolve();
+    }
+    
+    console.log(`📸 [Printable] Esperando ${imgs.length} imagen(es) (máximo ${maxWait}ms)...`);
+    
+    // Crear un timeout global que fuerza la resolución
+    const timeoutPromise = wait(maxWait).then(() => {
+      console.log(`⚠️ [Printable] Timeout alcanzado para imágenes, continuando...`);
+    });
+    
+    // Esperar todas las imágenes con timeout individual de 2 segundos por imagen
+    const imagePromises = imgs.map((img, index) => {
+      if (img.complete) {
+        console.log(`✅ [Printable] Imagen ${index + 1} ya cargada`);
+        return Promise.resolve();
+      }
+      
+      return Promise.race([
+        new Promise((res) => {
+          img.addEventListener('load', () => {
+            console.log(`✅ [Printable] Imagen ${index + 1} cargada`);
+            res();
+          }, { once: true });
+          img.addEventListener('error', () => {
+            console.log(`⚠️ [Printable] Imagen ${index + 1} falló al cargar`);
+            res(); // Resolver igual para continuar
+          }, { once: true });
+        }),
+        wait(2000).then(() => {
+          console.log(`⏱️ [Printable] Timeout para imagen ${index + 1}`);
+        })
+      ]);
+    });
+    
+    // Combinar todos los promises con un timeout global
+    return Promise.race([
+      Promise.all(imagePromises),
+      timeoutPromise
+    ]).then(() => {
+      console.log('📸 [Printable] Espera de imágenes completada');
+    });
   };
 
   // Crear nombre de archivo profesional
@@ -66,12 +101,27 @@ async function initializePrintable() {
   const filename = `Resultados_GSBIndex_${empresaLimpia}_${fecha}.pdf`;
 
   try {
+    console.log('⏳ [Printable] Iniciando proceso de generación...');
+    
     // --- Esperar fuentes e imágenes ---
+    console.log('⏳ [Printable] Esperando fuentes...');
     if (document.fonts && document.fonts.ready) {
-      try { await Promise.race([document.fonts.ready, wait(1500)]); } catch {}
+      try { 
+        await Promise.race([document.fonts.ready, wait(1500)]); 
+        console.log('✅ [Printable] Fuentes listas');
+      } catch (e) {
+        console.log('⚠️ [Printable] Timeout en fuentes, continuando...');
+      }
+    } else {
+      console.log('⚠️ [Printable] document.fonts no disponible, continuando...');
     }
+    
+    console.log('⏳ [Printable] Esperando imágenes...');
     await waitForImages(area);
+    
+    console.log('⏳ [Printable] Espera final de 300ms...');
     await wait(300);
+    console.log('✅ [Printable] Todas las esperas completadas');
 
     // --- Opciones de html2pdf con formato custom ---
     // Ratio real: width:height = 911.67:3526 ≈ 1:3.87 (ancho:alto)
@@ -106,63 +156,157 @@ async function initializePrintable() {
 
     // --- Generar PDF directamente desde el elemento ---
     console.log('🔄 [Printable] Iniciando generación de PDF...');
-    const worker = html2pdf().set(opts).from(area).toPdf();
-    const pdf = await worker.get('pdf');
-    const dataUri = pdf.output('datauristring');
-    const pdfBase64 = dataUri.split(',')[1];
+    
+    // Timeout de seguridad para la generación del PDF (30 segundos)
+    const pdfGenerationPromise = (async () => {
+      const worker = html2pdf().set(opts).from(area).toPdf();
+      const pdf = await worker.get('pdf');
+      const dataUri = pdf.output('datauristring');
+      const pdfBase64 = dataUri.split(',')[1];
+      return pdfBase64;
+    })();
+    
+    const pdfBase64 = await Promise.race([
+      pdfGenerationPromise,
+      wait(30000).then(() => {
+        throw new Error('Timeout: La generación del PDF tardó demasiado (30s)');
+      })
+    ]);
+    
     console.log('✅ [Printable] PDF generado correctamente');
 
-    // --- Enviar por email o descargar como fallback ---
-    if (hasEmail) {
-      console.log('📧 [Printable] Preparando envío de email...');
-      const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/68efc759c7a2aae932ce61d5_Copia%20de%20ANEXO%201__GUIA.pdf";
-      
-      // --- Email simple y limpio ---
-      const htmlEmail = `
-        <p>Hola,</p>
-        <p>Ya tienes disponible el informe personalizado con los resultados de sostenibilidad de <strong>${empresa}</strong>.</p>
-        <p>Este PDF incluye tu puntuación global, los indicadores de cada pilar —ambiental, social y de gobernanza— y una comparativa con la media del sector.</p>
-        <p>Además, puedes consultar la <a href="${guiaUrl}" target="_blank">guía</a> de interpretación y mejora del triple impacto, donde encontrarás orientaciones y ejemplos para avanzar hacia una sostenibilidad más sólida.</p>
-        <p>Gracias por confiar en nosotros para medir y mejorar el impacto de tu organización.</p>
-        <p style="color:#999;font-size:12px;">MIK - Mondragón Investigación en Gestión y GSBIndex por MIK S. Coop.</p>
-      `;
+    // --- Enviar por email siempre ---
+    console.log('📧 [Printable] Preparando envío de email...');
+    const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/68efc759c7a2aae932ce61d5_Copia%20de%20ANEXO%201__GUIA.pdf";
+    
+    // --- Email simple y limpio ---
+    const htmlEmail = `
+      <p>Hola,</p>
+      <p>Ya tienes disponible el informe personalizado con los resultados de sostenibilidad de <strong>${empresa}</strong>.</p>
+      <p>Este PDF incluye tu puntuación global, los indicadores de cada pilar —ambiental, social y de gobernanza— y una comparativa con la media del sector.</p>
+      <p>Además, puedes consultar la <a href="${guiaUrl}" target="_blank">guía</a> de interpretación y mejora del triple impacto, donde encontrarás orientaciones y ejemplos para avanzar hacia una sostenibilidad más sólida adaptada a tus necesidades.</p>
+      <p>Gracias por confiar en nosotros para medir y mejorar el impacto de tu organización.</p>
+      <p style="color:#999;font-size:12px;">©MIK S.Coop. Todos los derechos reservados</p>
+    `;
 
-      const payload = {
-        to,
-        subject: `Resultados de triple impacto GSBindex de ${empresa}`,
-        html: htmlEmail,
-        pdfBase64,
-        filename
-      };
+    // Usar email de la URL o un email por defecto si no hay
+    const emailDestino = hasEmail ? to : 'info@mik.eus'; // Email por defecto si no hay en la URL
+    
+    const payload = {
+      to: emailDestino,
+      subject: `Resultados de triple impacto GSBindex de ${empresa}`,
+      html: htmlEmail,
+      pdfBase64,
+      filename
+    };
 
-      console.log('📤 [Printable] Enviando email a:', to);
-      console.log('📤 [Printable] Tamaño del payload:', JSON.stringify(payload).length, 'caracteres');
-      
-      const resp = await fetch('https://email-send-sigma.vercel.app/api/send-email', {
+    // Preparar logs
+    console.log('📤 [Printable] Enviando email a:', emailDestino);
+    if (!hasEmail) {
+      console.log('📤 [Printable] No se encontró email en la URL, usando email por defecto');
+    }
+    
+    const payloadSize = JSON.stringify(payload).length;
+    const payloadSizeMB = (payloadSize / (1024 * 1024)).toFixed(2);
+    console.log('📤 [Printable] Tamaño del payload:', payloadSize, 'caracteres (' + payloadSizeMB + ' MB)');
+    
+    // Crear un timeout para el fetch (30 segundos)
+    const fetchWithTimeout = (url, options, timeout = 30000) => {
+      return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout: La solicitud tardó demasiado')), timeout)
+        )
+      ]);
+    };
+    
+    // Función para enviar el email (intenta primero sin keepalive, luego con keepalive si falla)
+    const sendEmail = async (useKeepalive = false) => {
+      const fetchOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      });
+      };
       
-      console.log('📤 [Printable] Respuesta del servidor:', resp.status, resp.statusText);
-
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        const errorMsg = err.error || 'Error enviando el email';
+      // Solo usar keepalive si el payload es pequeño (< 64KB)
+      // keepalive tiene limitaciones de tamaño en algunos navegadores
+      if (useKeepalive && payloadSize < 65536) {
+        fetchOptions.keepalive = true;
+        console.log('📤 [Printable] Intentando envío con keepalive (payload pequeño)');
+      } else if (useKeepalive) {
+        console.log('📤 [Printable] Payload demasiado grande para keepalive, usando fetch normal');
+      } else {
+        console.log('📤 [Printable] Intentando envío con fetch estándar');
+      }
+      
+      return await fetchWithTimeout('https://email-send-sigma.vercel.app/api/send-email', fetchOptions);
+    };
+    
+    // Intentar enviar el email
+    try {
+      let resp;
+      let lastError;
+      
+      // Primer intento: sin keepalive (mejor para payloads grandes)
+      try {
+        resp = await sendEmail(false);
+      } catch (error) {
+        console.warn('⚠️ [Printable] Primer intento falló:', error.message);
+        lastError = error;
         
-        if (isSafari) {
-          console.warn(`🍎 Safari: Fallo al enviar email (${errorMsg}), descargando PDF localmente como fallback`);
+        // Segundo intento: con keepalive solo si el payload es pequeño
+        if (payloadSize < 65536) {
+          console.log('🔄 [Printable] Reintentando con keepalive...');
+          try {
+            resp = await sendEmail(true);
+          } catch (error2) {
+            console.error('❌ [Printable] Segundo intento también falló:', error2.message);
+            throw error2; // Lanzar el error más reciente
+          }
         } else {
-          console.warn(`Fallo al enviar email (${errorMsg}), se descargará el PDF localmente.`);
+          throw error; // Si el payload es grande, no intentar con keepalive
         }
+      }
+      
+      const status = resp.status;
+      const statusText = resp.statusText;
+      console.log('📤 [Printable] Respuesta del servidor:', status, statusText);
+
+      // Si la respuesta es 200, el email se envió correctamente
+      if (status === 200 || resp.ok) {
+        console.log(`✅ PDF enviado correctamente a ${emailDestino}`);
         
-        await html2pdf().set(opts).from(area).save();
-        return; // No lanzar error, solo hacer fallback
+        // Leer la respuesta en segundo plano sin bloquear (opcional)
+        resp.json().then((data) => {
+          console.log('✅ [Printable] Confirmación de envío recibida:', data);
+        }).catch(() => {
+          // Ignorar errores - el status 200 ya confirma que se envió
+        });
+        
+        // Salir inmediatamente - el email se envió correctamente
+        return;
       }
 
-      console.log(`✅ PDF enviado correctamente a ${to}`);
-    } else {
-      console.warn('No se encontró email en la URL. Descargando el PDF localmente.');
+      // Si no es 200, manejar el error
+      const err = await resp.json().catch(() => ({}));
+      const errorMsg = err.error || 'Error enviando el email';
+      console.warn(`⚠️ Fallo al enviar email (${errorMsg}), se descargará el PDF localmente como fallback.`);
+      await html2pdf().set(opts).from(area).save();
+      
+    } catch (fetchError) {
+      console.error('❌ Error en el fetch:', fetchError);
+      console.error('❌ Tipo de error:', fetchError.name || 'Unknown');
+      console.error('❌ Mensaje:', fetchError.message || 'Sin mensaje');
+      
+      // Información adicional sobre el error
+      if (fetchError.message?.includes('Failed to fetch')) {
+        console.error('💡 Posibles causas:');
+        console.error('   - Problema de red/CORS');
+        console.error('   - El servidor rechazó la conexión');
+        console.error('   - Payload demasiado grande (' + payloadSizeMB + ' MB)');
+      }
+      
+      console.warn('📥 Se descargará el PDF localmente como fallback debido a error de red.');
       await html2pdf().set(opts).from(area).save();
     }
 
@@ -171,10 +315,118 @@ async function initializePrintable() {
   }
 }
 
-// Sistema simple: Ejecutar printable.js exactamente a los 10 segundos
-console.log('📄 printable.js cargado - Ejecutando en 10 segundos...');
+// Sistema robusto: Ejecutar printable.js después de 10.5 segundos
+// Usa múltiples estrategias para evitar throttling del navegador en pestañas en segundo plano
+console.log('📄 printable.js cargado - Ejecutando en 10.5 segundos...');
 
-setTimeout(() => {
-  console.log('⏰ [Printable] Ejecutando printable.js después de 10 segundos...');
-  initializePrintable();
-}, 10000); // Exactamente 10 segundos
+let printableExecuted = false;
+let startTime = Date.now();
+const delayMs = 10500; // 10.5 segundos
+let timeoutId = null;
+let rafId = null;
+let intervalId = null;
+
+// Estrategia 3: Page Visibility API - ejecutar inmediatamente cuando la página se hace visible
+function handleVisibilityChange() {
+  if (document.visibilityState === 'visible' && !printableExecuted) {
+    console.log('👁️ [Printable] Página visible detectada, verificando si ejecutar...');
+    executePrintableIfReady();
+  }
+}
+
+// Estrategia adicional: Forzar ejecución con cualquier interacción del usuario
+function handleUserInteraction() {
+  if (!printableExecuted) {
+    console.log('👆 [Printable] Interacción del usuario detectada, verificando si ejecutar...');
+    executePrintableIfReady();
+  }
+}
+
+// Limpiar recursos cuando se ejecute
+function cleanup() {
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  window.removeEventListener('focus', handleVisibilityChange);
+  window.removeEventListener('pageshow', handleVisibilityChange);
+  window.removeEventListener('resize', handleUserInteraction);
+  window.removeEventListener('scroll', handleUserInteraction);
+  // Los listeners con { once: true } se limpian automáticamente
+}
+
+// Función para ejecutar printable si no se ha ejecutado ya
+function executePrintableIfReady() {
+  if (printableExecuted) return false;
+  
+  const elapsed = Date.now() - startTime;
+  if (elapsed >= delayMs) {
+    printableExecuted = true;
+    console.log('⏰ [Printable] Ejecutando printable.js después de', (elapsed / 1000).toFixed(1), 'segundos...');
+    cleanup();
+    initializePrintable();
+    return true;
+  }
+  return false;
+}
+
+// Estrategia 2: requestAnimationFrame para verificar periódicamente (no se throttlea tanto)
+function checkWithRAF() {
+  if (printableExecuted) {
+    cleanup();
+    return;
+  }
+  
+  if (executePrintableIfReady()) {
+    return;
+  }
+  
+  rafId = requestAnimationFrame(checkWithRAF);
+}
+
+// Estrategia 1: setTimeout como respaldo (puede throttlear en segundo plano)
+timeoutId = setTimeout(() => {
+  executePrintableIfReady();
+}, delayMs);
+
+// Estrategia 2: requestAnimationFrame para verificar periódicamente (no se throttlea tanto)
+rafId = requestAnimationFrame(checkWithRAF);
+
+// Estrategia 2b: setInterval como respaldo adicional (verifica cada segundo)
+intervalId = setInterval(() => {
+  if (!printableExecuted) {
+    executePrintableIfReady();
+  } else {
+    clearInterval(intervalId);
+  }
+}, 1000);
+
+// Estrategia 4: Event listeners para asegurar ejecución
+document.addEventListener('visibilitychange', handleVisibilityChange);
+window.addEventListener('focus', handleVisibilityChange);
+window.addEventListener('pageshow', handleVisibilityChange);
+
+// Estrategia adicional: Detectar interacciones del usuario (click, resize, scroll, etc.)
+// Esto explica por qué funciona cuando cambias el tamaño de pantalla
+window.addEventListener('resize', handleUserInteraction);
+window.addEventListener('scroll', handleUserInteraction);
+document.addEventListener('click', handleUserInteraction, { once: true });
+document.addEventListener('mousemove', handleUserInteraction, { once: true });
+document.addEventListener('touchstart', handleUserInteraction, { once: true });
+document.addEventListener('keydown', handleUserInteraction, { once: true });
+
+// Estrategia 5: Verificar inmediatamente si ya pasó el tiempo (por si la página ya estaba cargada)
+if (document.readyState === 'complete') {
+  setTimeout(() => {
+    executePrintableIfReady();
+  }, 100);
+}
