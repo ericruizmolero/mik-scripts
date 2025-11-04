@@ -17,7 +17,9 @@
   function calcularImpactoClimatico() {
     const p17 = extraerValor(params.get('Pregunta-17'));
     const p18 = extraerValor(params.get('Pregunta-18'));
-    const p21_3 = extraerValor(params.get('Pregunta-21.3'));
+    // p21_3: si es 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+    const p21_3_raw = extraerValor(params.get('Pregunta-21.3'));
+    const p21_3 = Math.abs(p21_3_raw - 14.29) < 0.01 ? 100 : p21_3_raw;
     const p22_5 = extraerValor(params.get('Pregunta-22.5'));
     const p22_1 = extraerValor(params.get('Pregunta-22.1'));
     const p22_2 = extraerValor(params.get('Pregunta-22.2'));
@@ -27,12 +29,14 @@
 
   // 2. Gestión Sostenible - p23, p19, p22.3, p22.4, p22.6
   function calcularGestionSostenible() {
-    // p23: suma de checkboxes (p23.2, p23.3, p23.4, p23.5)
-    const p23_2 = params.get('p23.2-16.66666667') ? 16.67 : 0;
-    const p23_3 = params.get('p23.3-16.66666667') ? 16.67 : 0;
-    const p23_4 = params.get('p23.4-16.66666667') ? 16.67 : 0;
-    const p23_5 = params.get('p23.5-16.66666667') ? 16.67 : 0;
-    const p23 = p23_2 + p23_3 + p23_4 + p23_5;
+    // p23: suma de checkboxes (p23.1, p23.2, p23.3, p23.4, p23.5, p23.6)
+    const p23_1 = params.get('p23.1-16.66666667') ? 16.66666667 : 0;
+    const p23_2 = params.get('p23.2-16.66666667') ? 16.66666667 : 0;
+    const p23_3 = params.get('p23.3-16.66666667') ? 16.66666667 : 0;
+    const p23_4 = params.get('p23.4-16.66666667') ? 16.66666667 : 0;
+    const p23_5 = params.get('p23.5-16.66666667') ? 16.66666667 : 0;
+    const p23_6 = params.get('p23.6-16.66666667') ? 16.66666667 : 0;
+    const p23 = p23_1 + p23_2 + p23_3 + p23_4 + p23_5 + p23_6;
     
     const p19 = extraerValor(params.get('Pregunta-19'));
     const p22_3 = extraerValor(params.get('Pregunta-22.3'));
@@ -45,7 +49,9 @@
   // 3. Biodiversidad y Ecosistemas - p22.7, p21.4, p20
   function calcularBiodiversidad() {
     const p22_7 = extraerValor(params.get('Pregunta-22.7'));
-    const p21_4 = extraerValor(params.get('Pregunta-21.4'));
+    // p21_4: si es 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+    const p21_4_raw = extraerValor(params.get('Pregunta-21.4'));
+    const p21_4 = Math.abs(p21_4_raw - 14.29) < 0.01 ? 100 : p21_4_raw;
     const p20 = extraerValor(params.get('Pregunta-20'));
     
     return (p22_7 + p21_4 + p20) / 3;
@@ -56,8 +62,11 @@
     const p24 = extraerValor(params.get('Pregunta-24'));
     
     // p21: media de sub-preguntas (Pregunta-21.1, Pregunta-21.2)
-    const p21a = extraerValor(params.get('Pregunta-21.1'));
-    const p21b = extraerValor(params.get('Pregunta-21.2'));
+    // p21a y p21b: si son 14.29 (o cercano), normalizar a 100 para efectos de cálculo
+    const p21a_raw = extraerValor(params.get('Pregunta-21.1'));
+    const p21a = Math.abs(p21a_raw - 14.29) < 0.01 ? 100 : p21a_raw;
+    const p21b_raw = extraerValor(params.get('Pregunta-21.2'));
+    const p21b = Math.abs(p21b_raw - 14.29) < 0.01 ? 100 : p21b_raw;
     const p21 = (p21a + p21b) / 2;
     
     return (p24 + p21) / 2;
