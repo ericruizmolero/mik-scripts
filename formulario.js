@@ -40,14 +40,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // 1. Obtener datos críticos del formulario (solo los esenciales)
+    const sectorValue = formData.get('Sector') || '';
+    
+    // Obtener el texto visible del option seleccionado para Sector
+    // Usar selectedIndex para obtener el option realmente seleccionado (no solo el primero con ese value)
+    let sectorEspecifico = '';
+    const sectorSelect = form.querySelector('#Sector');
+    if (sectorSelect && sectorValue) {
+      const selectedIndex = sectorSelect.selectedIndex;
+      if (selectedIndex > 0) { // selectedIndex 0 es el placeholder "Selecciona tu sector*"
+        const selectedOption = sectorSelect.options[selectedIndex];
+        if (selectedOption) {
+          sectorEspecifico = selectedOption.textContent.trim();
+        }
+      }
+    }
+    
     const criticalData = {
       Email: formData.get('Email') || '',
       Compañia: formData.get('Compañia') || '',
-      Sector: formData.get('Sector') || '',
+      Sector: sectorValue,
       'Tamaño-de-tu-empresa': formData.get('Tamaño-de-tu-empresa') || formData.get('Tama-o-de-tu-empresa') || ''
     };
     
     console.log('🔍 Debug - Datos críticos encontrados:', criticalData);
+    console.log('🔍 Debug - Sector específico:', sectorEspecifico);
     
     // 2. Obtener resultados de las preguntas (para que grafica-main.js pueda calcular las métricas)
     const questionResults = {};
@@ -78,6 +95,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!criticalData.hasOwnProperty(key) && !questionResults.hasOwnProperty(key)) {
         basicData[key] = value;
       }
+    }
+    
+    // Añadir el sector específico si aún no está incluido
+    if (sectorEspecifico && !basicData['Sector-Especifico']) {
+      basicData['Sector-Especifico'] = sectorEspecifico;
     }
     
     // 5. Construir URL híbrida
