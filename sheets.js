@@ -5,7 +5,7 @@
 
 class GSBSheetsIntegration {
   constructor() {
-    this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8qZEAEKOWHju1g8m33snvuXu_lyI2G9tnM4br6BINnpgH3MGv7FRbeaacXd6t-UgfNw/exec';
+    this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzesKtGXuDbBtnoTd1LtSGZww7YjtTDtNR9twENeD8HzWoL5uPgt8xT-tjFmGLic9BTDA/exec';
     
     // Función para generar timestamp en horario español
     this.getSpanishTimestamp = () => {
@@ -400,12 +400,32 @@ class GSBSheetsIntegration {
             const metrics = this.calculateAllMetrics(params);
             console.log('📊 [Sheets] Métricas calculadas:', Object.keys(metrics).length, 'métricas');
             
+            // Extraer sector_especifico del formData antes de combinar (para añadirlo al final)
+            const sectorEspecifico = formData.sector_especifico || '';
+            delete formData.sector_especifico; // Eliminar del formData para añadirlo al final
+            
             // Combinar datos
             const completeData = {
                 ...formData,
                 ...metrics,
                 timestamp: this.getSpanishTimestamp()
             };
+            
+            // Añadir sector específico al final (para que aparezca como última columna en Excel)
+            // sectorEspecifico ya viene decodificado del formData, así que lo usamos directamente
+            if (sectorEspecifico) {
+                completeData.sector_especifico = sectorEspecifico;
+            } else {
+                // Si no se encontró en formData, intentar extraerlo directamente de params o datos decodificados
+                const sectorEspecificoParam = this.getParamValue(params, 'Sector-Especifico', 'Sector-Específico');
+                if (sectorEspecificoParam) {
+                    completeData.sector_especifico = decodeURIComponent(sectorEspecificoParam);
+                } else if (window.decodedFormData && window.decodedFormData['Sector-Especifico']) {
+                    completeData.sector_especifico = window.decodedFormData['Sector-Especifico'];
+                } else {
+                    completeData.sector_especifico = '';
+                }
+            }
             
             console.log('📤 [Sheets] Datos completos a enviar:', Object.keys(completeData).length, 'campos');
             console.log('📊 [Sheets] Métricas calculadas:', {
@@ -479,6 +499,7 @@ class GSBSheetsIntegration {
         const tipo_economia_social = this.getParamValue(params, 'Tipo de empresa de economía social al que pertenece', 'Tipo-de-empresa-de-econom-a-social-al-que-pertenece');
         const departamento = this.getParamValue(params, 'En qué departamento de la empresa trabaja', 'En-qu-departamento-de-la-empresa-trabaja');
         const nombre = this.getParamValue(params, 'Nombre');
+        const sector_especifico = this.getParamValue(params, 'Sector-Especifico', 'Sector-Específico');
         
         // Extraer todas las respuestas del formulario
         const responses = {};
@@ -553,6 +574,11 @@ class GSBSheetsIntegration {
         if (!acepta_utilizar_sus_datos && window.decodedFormData) {
             acepta_utilizar_sus_datos = window.decodedFormData['acepta-utilizar-sus-datos'] || '';
         }
+        
+        // Buscar sector específico en datos decodificados si no está en la URL
+        if (!sector_especifico && window.decodedFormData) {
+            sector_especifico = window.decodedFormData['Sector-Especifico'] || '';
+        }
 
         return {
             email: decodeURIComponent(email),
@@ -572,6 +598,7 @@ class GSBSheetsIntegration {
             pf2: decodeURIComponent(pf2),
             acepta_proteccion_datos: decodeURIComponent(acepta_proteccion_datos || ''),
             acepta_utilizar_sus_datos: decodeURIComponent(acepta_utilizar_sus_datos || ''),
+            sector_especifico: decodeURIComponent(sector_especifico || ''),
             ...responses
         };
     }
