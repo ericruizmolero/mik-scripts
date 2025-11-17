@@ -179,15 +179,22 @@ async function initializePrintable() {
     console.log('📧 [Printable] Preparando envío de email...');
     const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/68efc759c7a2aae932ce61d5_Copia%20de%20ANEXO%201__GUIA.pdf";
     
-    // --- Email simple y limpio ---
-    const htmlEmail = `
-      <p>Hola,</p>
-      <p>Ya tienes disponible el informe personalizado con los resultados de sostenibilidad de <strong>${empresa}</strong>.</p>
-      <p>Este PDF incluye tu puntuación global, los indicadores de cada pilar —ambiental, social y de gobernanza— y una comparativa con la media del sector.</p>
-      <p>Además, puedes consultar la <a href="${guiaUrl}" target="_blank">guía</a> de interpretación y mejora del triple impacto, donde encontrarás orientaciones y ejemplos para avanzar hacia una sostenibilidad más sólida adaptada a tus necesidades.</p>
-      <p>Gracias por confiar en nosotros para medir y mejorar el impacto de tu organización.</p>
-      <p style="color:#999;font-size:12px;">©MIK S.Coop. Todos los derechos reservados</p>
-    `;
+// --- Email simple y limpio ---
+const htmlEmail = `
+  <p>Hola,</p>
+  <p>Ya tienes disponible el informe personalizado con los resultados de sostenibilidad de <strong>${empresa}</strong>.</p>
+  <p>Este PDF incluye tu puntuación global, los indicadores de cada pilar —ambiental, social y de gobernanza— y una comparativa con la media del sector.</p>
+  <p>Además, puedes consultar la <a href="${guiaUrl}" target="_blank">guía</a> de interpretación y mejora del triple impacto, donde encontrarás orientaciones y ejemplos para avanzar hacia una sostenibilidad más sólida adaptada a tus necesidades.</p>
+  <p>Gracias por confiar en nosotros para medir y mejorar el impacto de tu organización.</p>
+
+  <p style="color:#666;font-size:12px;line-height:1.4;">
+    <strong>Nota:</strong> Estos resultados comparan tus respuestas con la muestra GSBI y tienen un carácter orientativo.
+    No deben interpretarse como una evaluación concluyente o como una certificación del desempeño de tu empresa en materia de sostenibilidad,
+    ni tampoco usarse en informes o comunicaciones que sugieran que MIK S.Coop. respalda su actuación.
+  </p>
+
+  <p style="color:#999;font-size:12px;">©MIK S.Coop. Todos los derechos reservados</p>
+`;
 
     // Usar email de la URL o un email por defecto si no hay
     const emailDestino = hasEmail ? to : 'info@mik.eus'; // Email por defecto si no hay en la URL
