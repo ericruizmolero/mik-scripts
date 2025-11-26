@@ -177,7 +177,7 @@ async function initializePrintable() {
 
     // --- Enviar por email siempre ---
     console.log('📧 [Printable] Preparando envío de email...');
-    const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/68efc759c7a2aae932ce61d5_Copia%20de%20ANEXO%201__GUIA.pdf";
+    const guiaUrl = "https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/6926b62ec3cf8ad58dfeb5d3_GUIA%20GSBI%20DESCARGA%20WEB_compressed.pdf";
     
 // --- Email simple y limpio ---
 const htmlEmail = `
