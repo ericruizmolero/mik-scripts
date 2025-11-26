@@ -202,7 +202,7 @@ const htmlEmail = `
   
   <div style="font-family: Arial, sans-serif; color: #333;">
     <a href="https://www.mondragon.edu/eu/hasiera" target="_blank" style="display: inline-block; margin-bottom: 15px;">
-      <img src="https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/69088db0cd6431eae3d110fd_Mik_hiru%20hizkuntza%20horizontal%20txuria%201.png" width="200" alt="MIK Logo" style="max-width: 100%; height: auto;">
+      <img src="https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/69088db0cd6431eae3d110fd_Mik_hiru%20hizkuntza%20horizontal%20txuria%201.png" width="400" alt="MIK Logo" style="max-width: 100%; height: auto;">
     </a>
     
     <div style="font-weight: bold; color: #005A42; margin-bottom: 5px;">Equipo de Sostenibilidad y Negocios Circulares</div>
