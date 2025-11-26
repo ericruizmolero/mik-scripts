@@ -214,13 +214,13 @@ const htmlEmail = `
     <div style="font-weight: bold; color: #005A42; margin-bottom: 5px;">MIK S.Coop. | Mondragon Unibertsitatea | Enpresagintza Fakultatea</div>
     
     <div style="font-size: 12px; color: #005A42; opacity: 0.8; line-height: 1.5;">
-      <a href="https://www.google.com/maps/dir//Edificio+Palmera+Montero,+Leandro+Agirretxe+Plazatxoa,+20304+Irun,+Gipuzkoa/@42.8048384,-1.654784,6946m/data=!3m1!1e3!4m8!4m7!1m0!1m5!1m1!1s0xd510859d7470ccf:0xfe75152882d7dcb2!2m2!1d-1.7809546!2d43.3391079?entry=ttu&amp;g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D" target="_blank" style="color: inherit; text-decoration: none;">Edificio Palmera Montero, Leandro Agirretxe Plazatxoa, 20304 Irun, Gipuzkoa</a>
+      <a href="https://maps.app.goo.gl/q3zNbL4JBHoMCUYc9" target="_blank" style="color: inherit; text-decoration: none;">Ibarra Zelaia 2, 20560 Oñati, Gipuzkoa</a>
       <span style="margin: 0 5px;">|</span>
       <a href="https://www.mondragon.edu/eu/hasiera" target="_blank" style="color: inherit; text-decoration: none;">www.mondragon.edu</a>
       <span style="margin: 0 5px;">|</span>
       <a href="https://mik.mondragon.edu/es/inicio" target="_blank" style="color: inherit; text-decoration: none;">https://mik.mondragon.edu/es/inicio</a>
       <span style="margin: 0 5px;">|</span>
-      <a href="https://www.linkedin.com/in/borja-diez-canamero" target="_blank" style="color: inherit; text-decoration: none;">Agrégame en LinkedIn</a>
+      <a href="https://www.linkedin.com/company/mik/" target="_blank" style="color: inherit; text-decoration: none;">Agrégame en LinkedIn</a>
     </div>
   </div>
 `;
