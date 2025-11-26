@@ -351,13 +351,13 @@ const htmlEmail = `
   }
 }
 
-// Sistema robusto: Ejecutar printable.js después de 9.1 segundos
+// Sistema robusto: Ejecutar printable.js después de 9 segundos
 // Usa múltiples estrategias para evitar throttling del navegador en pestañas en segundo plano
-console.log('📄 printable.js cargado - Ejecutando en 10.5 segundos...');
+console.log('📄 printable.js cargado - Ejecutando en 9 segundos...');
 
 let printableExecuted = false;
 let startTime = Date.now();
-const delayMs = 9100; // 9.1 segundos
+const delayMs = 9000; // 9.1 segundos
 let timeoutId = null;
 let rafId = null;
 let intervalId = null;
@@ -444,7 +444,7 @@ intervalId = setInterval(() => {
   } else {
     clearInterval(intervalId);
   }
-}, 1000);
+}, 500);
 
 // Estrategia 4: Event listeners para asegurar ejecución
 document.addEventListener('visibilitychange', handleVisibilityChange);
