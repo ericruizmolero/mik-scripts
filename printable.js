@@ -193,7 +193,36 @@ const htmlEmail = `
     ni tampoco usarse en informes o comunicaciones que sugieran que MIK S.Coop. respalda su actuación.
   </p>
 
-  <p style="color:#999;font-size:12px;">©MIK S.Coop. Todos los derechos reservados</p>
+  <p style="color:#999;font-size:11px;font-style:italic;margin-top:10px;">
+    © MIK S. Coop. Este informe se distribuye bajo Licencia Creative Commons BY-NC-ND 4.0.<br>
+    Se permite su copia y redistribución con reconocimiento de autoría, sin fines comerciales y sin modificaciones.
+  </p>
+  
+  <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
+  
+  <div style="font-family: Arial, sans-serif; color: #333;">
+    <a href="https://www.mondragon.edu/eu/hasiera" target="_blank" style="display: inline-block; margin-bottom: 15px;">
+      <img src="https://cdn.prod.website-files.com/68e4d9e76fdc64594468b12e/69088db0cd6431eae3d110fd_Mik_hiru%20hizkuntza%20horizontal%20txuria%201.png" width="200" alt="MIK Logo" style="max-width: 100%; height: auto;">
+    </a>
+    
+    <div style="font-weight: bold; color: #005A42; margin-bottom: 5px;">Equipo de Sostenibilidad y Negocios Circulares</div>
+    
+    <div style="font-size: 12px; color: #005A42; opacity: 0.8; margin-bottom: 15px;">
+      <a href="mailto:info@gsbindex.com" target="_blank" style="color: inherit; text-decoration: none;">info@gsbindex.com</a>
+    </div>
+    
+    <div style="font-weight: bold; color: #005A42; margin-bottom: 5px;">MIK S.Coop. | Mondragon Unibertsitatea | Enpresagintza Fakultatea</div>
+    
+    <div style="font-size: 12px; color: #005A42; opacity: 0.8; line-height: 1.5;">
+      <a href="https://www.google.com/maps/dir//Edificio+Palmera+Montero,+Leandro+Agirretxe+Plazatxoa,+20304+Irun,+Gipuzkoa/@42.8048384,-1.654784,6946m/data=!3m1!1e3!4m8!4m7!1m0!1m5!1m1!1s0xd510859d7470ccf:0xfe75152882d7dcb2!2m2!1d-1.7809546!2d43.3391079?entry=ttu&amp;g_ep=EgoyMDI1MTEyMy4xIKXMDSoASAFQAw%3D%3D" target="_blank" style="color: inherit; text-decoration: none;">Edificio Palmera Montero, Leandro Agirretxe Plazatxoa, 20304 Irun, Gipuzkoa</a>
+      <span style="margin: 0 5px;">|</span>
+      <a href="https://www.mondragon.edu/eu/hasiera" target="_blank" style="color: inherit; text-decoration: none;">www.mondragon.edu</a>
+      <span style="margin: 0 5px;">|</span>
+      <a href="https://mik.mondragon.edu/es/inicio" target="_blank" style="color: inherit; text-decoration: none;">https://mik.mondragon.edu/es/inicio</a>
+      <span style="margin: 0 5px;">|</span>
+      <a href="https://www.linkedin.com/in/borja-diez-canamero" target="_blank" style="color: inherit; text-decoration: none;">Agrégame en LinkedIn</a>
+    </div>
+  </div>
 `;
 
     // Usar email de la URL o un email por defecto si no hay
