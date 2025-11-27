@@ -101,9 +101,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (sectorEspecifico && !basicData['Sector-Especifico']) {
       basicData['Sector-Especifico'] = sectorEspecifico;
     }
+
+     // 5. Construir URL híbrida
+    // Detección automática del entorno:
+    // Si estamos en Webflow (o usamos URLs limpias sin .html), usamos '/resultado'
+    // Si estamos en un servidor estático (la URL actual tiene .html), usamos '/resultado.html'
+    const currentPath = window.location.pathname;
+    const needsHtmlExtension = currentPath.endsWith('.html') || currentPath.includes('index.html');
+    const targetPath = needsHtmlExtension ? '/resultado.html' : '/resultado';
     
-    // 5. Construir URL híbrida
-    let redirectUrl = '/resultado?' + criticalParams.toString();
+    let redirectUrl = targetPath + '?' + criticalParams.toString();
     
     // 6. Si hay datos básicos, comprimirlos y agregarlos
     if (Object.keys(basicData).length > 0) {
