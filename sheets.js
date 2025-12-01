@@ -5,7 +5,7 @@
 
 class GSBSheetsIntegration {
   constructor() {
-    this.SCRIPT_URL = 'https://script.google.com/a/macros/mondragon.edu/s/AKfycbznQtWv4S5hfz1XzVBztq4MVpNCTLgEQd4LSD4wbEL-4ltfUBOfGjCspSDic25REh2UJQ/exec';
+    this.SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOr-gqqu1H6VuOc4nbtx308JBXneBObNpzQXQZlUzevFoIaqHfkVVq6AdKz9zXaO-stA/exec';
     
     // Función para generar timestamp en horario español
     this.getSpanishTimestamp = () => {
