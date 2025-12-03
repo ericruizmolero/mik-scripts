@@ -275,7 +275,7 @@ const htmlEmail = `
         console.log('📤 [Printable] Intentando envío con fetch estándar');
       }
       
-      return await fetchWithTimeout('https://email-send-sigma.vercel.app/api/send-email', fetchOptions);
+      return await fetchWithTimeout('https://email-send-mu.vercel.app/api/send-email', fetchOptions);
     };
     
     // Intentar enviar el email
