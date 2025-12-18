@@ -181,11 +181,27 @@ async function initializePrintable() {
     
 // --- Email simple y limpio ---
 const htmlEmail = `
-  <p>Hola,</p>
-  <p>Ya tienes disponible el informe personalizado con los resultados de sostenibilidad de <strong>${empresa}</strong>.</p>
-  <p>Este PDF incluye tu puntuación global, los indicadores de cada pilar —ambiental, social y de gobernanza— y una comparativa con la media del sector.</p>
-  <p>Además, puedes consultar la <a href="${guiaUrl}" target="_blank">guía</a> de interpretación y mejora del triple impacto, donde encontrarás orientaciones y ejemplos para avanzar hacia una sostenibilidad más sólida adaptada a tus necesidades.</p>
-  <p>Gracias por confiar en nosotros para medir y mejorar el impacto de tu organización.</p>
+  <p>Estimado/a ${nombre},</p>
+  
+  <p>Ya tiene disponible su informe personalizado en sostenibilidad para <strong>${empresa}</strong>, elaborado a partir de la evaluación realizada en <a href="https://gsbindex.com/" target="_blank">GSBIndex.com</a></p>
+
+  <p>El documento incluye:</p>
+  <ul>
+    <li>Su puntuación global de sostenibilidad.</li>
+    <li>El detalle de los indicadores correspondientes a cada uno de los pilares —ambiental, social y de gobernanza—.</li>
+    <li>Una comparativa con la media del sector, que permite contextualizar sus resultados.</li>
+  </ul>
+
+  <p>Asimismo, tiene acceso a la <a href="${guiaUrl}" target="_blank">guía de interpretación y mejora del triple impacto</a>, diseñada para facilitar la comprensión de los resultados y ofrecer orientaciones prácticas y ejemplos que ayuden a reforzar su estrategia de sostenibilidad de forma progresiva y adaptada a las características de su organización.</p>
+
+  <p>Desde <a href="https://mik.mondragon.edu/es/inicio" target="_blank">MIK</a> quedamos a su disposición para acompañarle en su transición hacia la sostenibilidad mediante nuestro asesoramiento experto, profundizando en los resultados obtenidos e identificando oportunidades de mejora alineadas con sus objetivos estratégicos y el contexto de su actividad.</p>
+
+  <p>Del mismo modo, si está interesado en conocer las posibilidades que ofrece GSBIndex para la personalización de cuadros de mando interactivos sectoriales o territoriales para la toma de decisiones en tiempo real, le animamos a que contacte con nosotros mediante el siguiente correo electrónico <a href="mailto:info@gsbindex.com">info@gsbindex.com</a></p>
+
+  <p>Gracias por confiar en <a href="https://mik.mondragon.edu/es/inicio" target="_blank">MIK S. Coop.</a> para medir y avanzar en la mejora del impacto de su organización.</p>
+
+  <p>Atentamente,<br>
+  Equipo MIK S. Coop.</p>
 
   <p style="color:#666;font-size:12px;line-height:1.4;">
     <strong>Nota:</strong> Estos resultados comparan tus respuestas con la muestra GSBI y tienen un carácter orientativo.
